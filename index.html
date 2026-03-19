@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0f14" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Student Tracker (Offline)</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="shell">
+        <header class="topbar">
+          <div class="brand">
+            <div class="logo" aria-hidden="true">ST</div>
+            <div>
+              <div class="title">Student Tracker</div>
+              <div class="subtitle">Offline • Multi-user • Finance • Study • Exams</div>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <button id="themeToggle" class="btn btn-ghost" type="button" title="Toggle theme">
+              Theme
+            </button>
+            <button id="logoutBtn" class="btn btn-ghost hidden" type="button">Logout</button>
+          </div>
+        </header>
+
+        <main class="main">
+          <section id="authView" class="card">
+            <div class="card-header">
+              <h2>Login</h2>
+              <p class="muted">Your data is stored on this device only (offline).</p>
+            </div>
+
+            <div class="grid2">
+              <div>
+                <h3>Sign in</h3>
+                <form id="loginForm" class="form">
+                  <label>
+                    <span>Username</span>
+                    <input id="loginUsername" autocomplete="username" required minlength="3" />
+                  </label>
+                  <label>
+                    <span>Password</span>
+                    <input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" />
+                  </label>
+                  <label class="row" style="align-items:center; gap:10px">
+                    <input id="rememberMe" type="checkbox" style="width:auto" />
+                    <span class="muted" style="margin:0">Remember password on this device</span>
+                  </label>
+                  <button class="btn btn-primary" type="submit">Login</button>
+                </form>
+              </div>
+
+              <div>
+                <h3>Create account</h3>
+                <form id="signupForm" class="form">
+                  <label>
+                    <span>Username</span>
+                    <input id="signupUsername" autocomplete="username" required minlength="3" />
+                  </label>
+                  <label>
+                    <span>Password</span>
+                    <input id="signupPassword" type="password" autocomplete="new-password" required minlength="6" />
+                  </label>
+                  <label>
+                    <span>Confirm password</span>
+                    <input id="signupPassword2" type="password" autocomplete="new-password" required minlength="6" />
+                  </label>
+                  <button class="btn" type="submit">Create user</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="row">
+              <button id="exportAllBtn" class="btn btn-ghost" type="button">Export all data</button>
+              <label class="filelike btn btn-ghost">
+                Import backup
+                <input id="importAllInput" type="file" accept="application/json" />
+              </label>
+              <div class="muted small">
+                Tip: Export regularly to keep a safe backup.
+              </div>
+            </div>
+          </section>
+
+          <section id="appView" class="hidden">
+            <div class="toolbar card">
+              <div class="toolbar-left">
+                <div class="pill">
+                  Signed in as <strong id="whoami"></strong>
+                </div>
+                <div class="pill muted">
+                  Storage: <span id="storageHealth">OK</span>
+                </div>
+              </div>
+              <div class="toolbar-right">
+                <button id="exportUserBtn" class="btn btn-ghost" type="button">Export my data</button>
+                <label class="filelike btn btn-ghost">
+                  Import to my account
+                  <input id="importUserInput" type="file" accept="application/json" />
+                </label>
+              </div>
+            </div>
+
+            <div class="tabs card">
+              <button class="tab active" data-tab="dashboard">Dashboard</button>
+              <button class="tab" data-tab="finance">Finance</button>
+              <button class="tab" data-tab="study">Study</button>
+              <button class="tab" data-tab="exams">Exams</button>
+              <button class="tab" data-tab="tasks">Tasks</button>
+              <button class="tab" data-tab="settings">Settings</button>
+            </div>
+
+            <section id="tab-dashboard" class="tabpanel">
+              <div class="card">
+                <h2>Today</h2>
+                <div class="stats">
+                  <div class="stat">
+                    <div class="stat-label">Study minutes</div>
+                    <div id="statStudyToday" class="stat-value">0</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-label">Spent today</div>
+                    <div id="statSpentToday" class="stat-value">$0.00</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-label">Upcoming exams</div>
+                    <div id="statUpcomingExams" class="stat-value">0</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-label">Open tasks</div>
+                    <div id="statOpenTasks" class="stat-value">0</div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="grid2">
+                  <div>
+                    <h3>Next exam</h3>
+                    <div id="nextExam" class="muted">No exams yet.</div>
+                  </div>
+                  <div>
+                    <h3>Budget status</h3>
+                    <div id="budgetStatus" class="muted">Set a monthly budget in Settings.</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-finance" class="tabpanel hidden">
+              <div class="card">
+                <div class="row spread">
+                  <h2>Finance</h2>
+                  <div class="row">
+                    <button id="addTxnBtn" class="btn btn-primary" type="button">Add transaction</button>
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="card subtle">
+                    <h3>Month summary</h3>
+                    <div class="row wrap">
+                      <div class="pill">Income: <strong id="monthIncome">$0.00</strong></div>
+                      <div class="pill">Expense: <strong id="monthExpense">$0.00</strong></div>
+                      <div class="pill">Net: <strong id="monthNet">$0.00</strong></div>
+                    </div>
+                  </div>
+                  <div class="card subtle">
+                    <h3>Quick filters</h3>
+                    <div class="row wrap">
+                      <button class="btn btn-ghost" data-fin-filter="all" type="button">All</button>
+                      <button class="btn btn-ghost" data-fin-filter="expense" type="button">Expenses</button>
+                      <button class="btn btn-ghost" data-fin-filter="income" type="button">Income</button>
+                      <button class="btn btn-ghost" data-fin-filter="today" type="button">Today</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="table">
+                  <div class="thead">
+                    <div>Date</div><div>Type</div><div>Category</div><div>Note</div><div class="right">Amount</div><div></div>
+                  </div>
+                  <div id="txnRows" class="tbody"></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-study" class="tabpanel hidden">
+              <div class="card">
+                <div class="row spread">
+                  <h2>Study</h2>
+                  <div class="row">
+                    <button id="startStudyBtn" class="btn btn-primary" type="button">Start session</button>
+                    <button id="stopStudyBtn" class="btn hidden" type="button">Stop</button>
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="card subtle">
+                    <h3>Active session</h3>
+                    <div class="muted">Subject: <strong id="activeSubject">—</strong></div>
+                    <div class="muted">Elapsed: <strong id="activeElapsed">00:00:00</strong></div>
+                  </div>
+                  <div class="card subtle">
+                    <h3>This week</h3>
+                    <div class="row wrap">
+                      <div class="pill">Minutes: <strong id="weekMinutes">0</strong></div>
+                      <div class="pill">Sessions: <strong id="weekSessions">0</strong></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="row">
+                  <button id="addStudyBtn" class="btn btn-ghost" type="button">Add manual session</button>
+                </div>
+                <div class="table">
+                  <div class="thead thead-study">
+                    <div>Date</div><div>Subject</div><div>Note</div><div class="right">Minutes</div><div></div>
+                  </div>
+                  <div id="studyRows" class="tbody"></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-exams" class="tabpanel hidden">
+              <div class="card">
+                <div class="row spread">
+                  <h2>Exams</h2>
+                  <button id="addExamBtn" class="btn btn-primary" type="button">Add exam</button>
+                </div>
+                <div class="table">
+                  <div class="thead thead-exams">
+                    <div>Date</div><div>Course</div><div>Type</div><div>Location</div><div>Note</div><div></div>
+                  </div>
+                  <div id="examRows" class="tbody"></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-tasks" class="tabpanel hidden">
+              <div class="card">
+                <div class="row spread">
+                  <h2>Tasks</h2>
+                  <button id="addTaskBtn" class="btn btn-primary" type="button">Add task</button>
+                </div>
+                <div class="row wrap">
+                  <button class="btn btn-ghost" data-task-filter="all" type="button">All</button>
+                  <button class="btn btn-ghost" data-task-filter="open" type="button">Open</button>
+                  <button class="btn btn-ghost" data-task-filter="done" type="button">Done</button>
+                </div>
+                <div class="divider"></div>
+                <div id="taskRows" class="tasklist"></div>
+              </div>
+            </section>
+
+            <section id="tab-settings" class="tabpanel hidden">
+              <div class="card">
+                <h2>Settings</h2>
+                <div class="grid2">
+                  <div class="card subtle">
+                    <h3>Finance</h3>
+                    <form id="budgetForm" class="form">
+                      <label>
+                        <span>Monthly budget (expense limit)</span>
+                        <input id="monthlyBudget" type="number" min="0" step="0.01" placeholder="e.g. 250" />
+                      </label>
+                      <label>
+                        <span>Currency symbol</span>
+                        <input id="currencySymbol" maxlength="4" placeholder="$" />
+                      </label>
+                      <button class="btn" type="submit">Save</button>
+                    </form>
+                  </div>
+                  <div class="card subtle">
+                    <h3>Security</h3>
+                    <div class="row wrap" style="margin:8px 0 12px">
+                      <button id="enableNotifBtn" class="btn btn-ghost" type="button">Enable task notifications</button>
+                      <span class="muted small" id="notifStatus">Notifications: not enabled</span>
+                    </div>
+                    <form id="changePasswordForm" class="form">
+                      <label>
+                        <span>Current password</span>
+                        <input id="curPw" type="password" autocomplete="current-password" required minlength="6" />
+                      </label>
+                      <label>
+                        <span>New password</span>
+                        <input id="newPw" type="password" autocomplete="new-password" required minlength="6" />
+                      </label>
+                      <label>
+                        <span>Confirm new password</span>
+                        <input id="newPw2" type="password" autocomplete="new-password" required minlength="6" />
+                      </label>
+                      <button class="btn" type="submit">Change password</button>
+                    </form>
+                    <div class="divider"></div>
+                    <button id="deleteMeBtn" class="btn btn-danger" type="button">Delete my account (local)</button>
+                    <p class="muted small">This removes only data on this device.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <div class="muted small">
+            Offline app. Data stored locally (IndexedDB). For safety, use Export backups.
+          </div>
+          <div class="muted small" id="swStatus"></div>
+        </footer>
+      </div>
+    </div>
+
+    <dialog id="modal" class="modal">
+      <form method="dialog" class="modal-card">
+        <div class="row spread">
+          <h3 id="modalTitle">Modal</h3>
+          <button class="iconbtn" value="cancel" aria-label="Close" type="submit">✕</button>
+        </div>
+        <div id="modalBody"></div>
+        <div class="divider"></div>
+        <div class="row end" id="modalActions">
+          <button class="btn" value="cancel" type="submit">Cancel</button>
+          <button id="modalOk" class="btn btn-primary" value="ok" type="submit">OK</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
